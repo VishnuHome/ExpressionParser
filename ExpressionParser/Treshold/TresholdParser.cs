@@ -4,7 +4,7 @@ using System.Linq;
 namespace NetEti.ExpressionParser
 {
     /// <summary>
-    /// Ein Parser mit der Fähigkeit Schwellenwert-Operatoren aufzulösen.
+    /// Ein Parser mit der Fähigkeit, Schwellenwert-Operatoren aufzulösen.
     /// Abgeleitet vom Parser für erweiterte boolesche Ausdrücke.
     /// Es werden zusätzlich zu den in LogicalParser definierten
     /// Operatoren neun Operatoren für 10%, 20%, ... , 80%, 90% Schwellenwert eingeführt.
