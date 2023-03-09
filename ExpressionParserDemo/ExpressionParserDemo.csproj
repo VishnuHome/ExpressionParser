@@ -1,20 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AssemblyName>NetEti.$(MSBuildProjectName)</AssemblyName>
-    <RootNamespace>NetEti.ExpressionParser</RootNamespace>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <Title>$(AssemblyName) - Erstellt Syntax-Trees aus Textausdrücken</Title>
+    <RootNamespace>NetEti.DemoApplications</RootNamespace>
+    <Title>$(AssemblyName) - Demoprogramm</Title>
     <Authors>Erik Nagel</Authors>
     <Company>NetEti</Company>
-    <Description>Assembly zur Erstellung von Syntax-Trees aus Textausdrücken</Description>
+    <Description>$(AssemblyName) - Demoprogramm</Description>
     <Copyright>Copyright © $(Authors) 2012-2023</Copyright>
     <AssemblyVersion>7.0.0.0</AssemblyVersion>
     <FileVersion>7.0.0.0</FileVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExpressionParser\ExpressionParser.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <Reference Include="NetEti.Global">

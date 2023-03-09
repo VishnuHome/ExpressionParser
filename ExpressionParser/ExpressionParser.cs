@@ -52,35 +52,35 @@ namespace NetEti.ExpressionParser
         /// Liste von jeweils mehrern möglichen Text-Token mit jeweils
         /// einem zugeordneten internen Schlüssel. <see cref="BooleanParser"/>
         /// </summary>
-        public Dictionary<string, List<string>> Token { get; set; }
+        public Dictionary<string, List<string>>? Token { get; set; }
 
         /// <summary>
         /// Liste von jeweils ein oder zwei möglichen Operanden mit jeweils
         /// einem zugeordneten Operator. <see cref="BooleanParser"/>
         /// </summary>
-        public Dictionary<string, List<SyntaxElement>> Operators { get; set; }
+        public Dictionary<string, List<SyntaxElement>>? Operators { get; set; }
 
         /// <summary>
         /// Liste von Operatoren mit ihren relativen Prioritäten.
         /// <see cref="BooleanParser"/>
         /// </summary>
-        public Dictionary<string, int> OperatorPriority { get; set; }
+        public Dictionary<string, int>? OperatorPriority { get; set; }
 
 
         /// <summary>
         /// Liste von höherwertigen Operatoren mit zugeordneten Unterausdrücken.
         /// <see cref="BooleanParser"/>
         /// </summary>
-        public Dictionary<string, string> MetaRules { get; set; }
+        public Dictionary<string, string>? MetaRules { get; set; }
 
         /// <summary>
         /// Der ursprünglich übergebene Text-Ausdruck.
         /// </summary>
-        public string ExpressionString { get; private set; }
+        public string? ExpressionString { get; private set; }
 
-        private SyntaxTree syntaxTree;
-        private KeyValuePair<string, List<string>>[] preorderedToken = null;
-        private Dictionary<string, List<SyntaxTree>> preParsedMetaRules = null;
+        private SyntaxTree? syntaxTree;
+        private KeyValuePair<string, List<string>>[]? preorderedToken = null;
+        private Dictionary<string, List<SyntaxTree>>? preParsedMetaRules = null;
 
         /// <summary>
         /// Überführt einen Textausdruck anhand vorgegebener Regeln
@@ -97,9 +97,12 @@ namespace NetEti.ExpressionParser
             if (this.preParsedMetaRules == null)
             {
                 this.preParseMetaRules();
-                foreach (List<SyntaxTree> children in this.preParsedMetaRules.Values)
+                if (this.preParsedMetaRules != null)
                 {
-                    this.priorityToChildren(children);
+                    foreach (List<SyntaxTree> children in this.preParsedMetaRules.Values)
+                    {
+                        this.priorityToChildren(children);
+                    }
                 }
             }
             this.ExpressionString = expr;
@@ -107,8 +110,14 @@ namespace NetEti.ExpressionParser
                                              SyntaxElement.STRUCT,
                                              null,
                                              this.preParse(this.ExpressionString));
-            this.priorityToChildren(this.syntaxTree.Children);
-            this.preparsedMetaRulesToChildren();
+            if (this.syntaxTree.Children != null)
+            {
+                this.priorityToChildren(this.syntaxTree.Children);
+                if (this.preParsedMetaRules != null)
+                {
+                    this.preparsedMetaRulesToChildren();
+                }
+            }
             this.syntaxTree.Parse();
             return this.syntaxTree;
         }
@@ -120,7 +129,11 @@ namespace NetEti.ExpressionParser
         /// <returns>Liste aller Operanden.</returns>
         public List<string> GetOperands(string expression)
         {
-            KeyValuePair<string, List<string>>[] preorderedToken = this.preorderToken();
+            KeyValuePair<string, List<string>>[]? preorderedToken = this.preorderToken();
+            if (preorderedToken == null)
+            {
+                return new List<string>();
+            }
             foreach (KeyValuePair<string, List<string>> token in preorderedToken)
             {
                 foreach (string tokenValue in token.Value)
@@ -150,11 +163,14 @@ namespace NetEti.ExpressionParser
         private void preParseMetaRules()
         {
             this.preParsedMetaRules = new Dictionary<string, List<SyntaxTree>>();
-            foreach (string key in this.MetaRules.Keys)
+            if (this.MetaRules != null)
             {
-                if (this.Operators.Keys.Contains(key))
+                foreach (string key in this.MetaRules.Keys)
                 {
-                    this.preParsedMetaRules.Add(key, this.preParse(this.MetaRules[key]));
+                    if (this.Operators?.Keys.Contains(key) == true)
+                    {
+                        this.preParsedMetaRules.Add(key, this.preParse(this.MetaRules[key]));
+                    }
                 }
             }
         }
@@ -165,13 +181,13 @@ namespace NetEti.ExpressionParser
             do
             {
                 metaRuleFound = false;
-                for (int i = 0; i < this.syntaxTree.Children.Count; i++)
+                for (int i = 0; i < this.syntaxTree?.Children?.Count; i++)
                 {
                     SyntaxTree child = this.syntaxTree.Children[i];
-                    if (this.MetaRules.ContainsKey(child.NodeName))
+                    if (this.MetaRules?.ContainsKey(child.NodeName) == true)
                     {
                         metaRuleFound = true;
-                        List<SyntaxTree> rulePart = this.preParsedMetaRules[child.NodeName];
+                        List<SyntaxTree> rulePart = this.preParsedMetaRules?[child.NodeName] ?? new List<SyntaxTree>();
                         List<SyntaxTree> replacement = new List<SyntaxTree>();
                         int leftReplaced = i;
                         int rightReplaced = i;
@@ -257,35 +273,38 @@ namespace NetEti.ExpressionParser
 
         private void priorityToChildren(List<SyntaxTree> children)
         {
-            foreach (KeyValuePair<string, int> prio in this.OperatorPriority.OrderBy(c => c.Value).ToList())
+            if (this.OperatorPriority != null)
             {
-                for (int j = 0; j < children.Count; j++)
+                foreach (KeyValuePair<string, int> prio in this.OperatorPriority.OrderBy(c => c.Value).ToList())
                 {
-                    if (children[j].NodeName.Equals(prio.Key))
+                    for (int j = 0; j < children.Count; j++)
                     {
-                        string actOperator = children[j].NodeName;
-                        int leftBorder = j - 1;
-                        int rightBorder = j + 1;
-                        if (this.Operators[actOperator].Contains(SyntaxElement.LEFT))
+                        if (children[j].NodeName.Equals(prio.Key))
                         {
-                            leftBorder = findLeftBorder(children, j, prio.Value);
-                        }
-                        if (this.Operators[actOperator].Contains(SyntaxElement.RIGHT))
-                        {
-                            rightBorder = findRightBorder(children, j, prio.Value);
-                        }
-                        if (rightBorder > j + 1 || leftBorder < j - 1)
-                        {
-                            if (rightBorder > children.Count - 1)
+                            string actOperator = children[j].NodeName;
+                            int leftBorder = j - 1;
+                            int rightBorder = j + 1;
+                            if (this.Operators?[actOperator].Contains(SyntaxElement.LEFT) == true)
                             {
-                                children.Add(new SyntaxTree("UNGROUP", SyntaxElement.UNGROUP, this.syntaxTree, null));
+                                leftBorder = findLeftBorder(children, j, prio.Value);
                             }
-                            else
+                            if (this.Operators?[actOperator].Contains(SyntaxElement.RIGHT) == true)
                             {
-                                children.Insert(rightBorder, new SyntaxTree("UNGROUP", SyntaxElement.UNGROUP, this.syntaxTree, null));
+                                rightBorder = findRightBorder(children, j, prio.Value);
                             }
-                            children.Insert(leftBorder + 1, new SyntaxTree("GROUP", SyntaxElement.GROUP, this.syntaxTree, null));
-                            j++;
+                            if (rightBorder > j + 1 || leftBorder < j - 1)
+                            {
+                                if (rightBorder > children.Count - 1)
+                                {
+                                    children.Add(new SyntaxTree("UNGROUP", SyntaxElement.UNGROUP, this.syntaxTree, null));
+                                }
+                                else
+                                {
+                                    children.Insert(rightBorder, new SyntaxTree("UNGROUP", SyntaxElement.UNGROUP, this.syntaxTree, null));
+                                }
+                                children.Insert(leftBorder + 1, new SyntaxTree("GROUP", SyntaxElement.GROUP, this.syntaxTree, null));
+                                j++;
+                            }
                         }
                     }
                 }
@@ -318,7 +337,7 @@ namespace NetEti.ExpressionParser
                     default:
                         if (bracketCount == 0)
                         {
-                            if (this.OperatorPriority.Keys.Contains(nodeName) && this.OperatorPriority[nodeName] > priority)
+                            if ((this.OperatorPriority?.Keys.Contains(nodeName) == true) && this.OperatorPriority[nodeName] > priority)
                             {
                                 return border;
                             }
@@ -355,7 +374,7 @@ namespace NetEti.ExpressionParser
                     default:
                         if (bracketCount == 0)
                         {
-                            if (this.OperatorPriority.Keys.Contains(nodeName) && this.OperatorPriority[nodeName] > priority)
+                            if ((this.OperatorPriority?.Keys.Contains(nodeName) == true) && this.OperatorPriority[nodeName] > priority)
                             {
                                 return border;
                             }
@@ -368,12 +387,12 @@ namespace NetEti.ExpressionParser
 
         internal void show(string indent)
         {
-            this.syntaxTree.Show(indent);
+            this.syntaxTree?.Show(indent);
         }
 
         internal void showFlat()
         {
-            this.syntaxTree.ShowFlat();
+            this.syntaxTree?.ShowFlat();
             Console.WriteLine();
         }
 
@@ -382,25 +401,28 @@ namespace NetEti.ExpressionParser
             List<SyntaxTree> children = new List<SyntaxTree>();
             // alle Token und Namen in eine Stringliste separieren
             string expr1 = expr;
-            for (int i = 0; i < this.preorderedToken.Length; i++)
+            for (int i = 0; i < this.preorderedToken?.Length; i++)
             {
                 string se = this.preorderedToken[i].Key;
-                foreach (string op in Token[se])
+                if (Token != null)
                 {
-                    if (Regex.Matches(op, "^[a-z0-9_ ]+$", RegexOptions.IgnoreCase).Count > 0)
+                    foreach (string op in Token[se])
                     {
-                        expr1 = Regex.Replace(expr1, @"\b" + op + @"\b", " _" + se.ToString() + "_ ", RegexOptions.IgnoreCase);
-                    }
-                    else
-                    {
-                        if (Regex.Matches(op, "[a-z0-9_ ]+", RegexOptions.IgnoreCase).Count == 0)
+                        if (Regex.Matches(op, "^[a-z0-9_ ]+$", RegexOptions.IgnoreCase).Count > 0)
                         {
-                            string premaskedOp = Regex.Replace(op, "", "\\").TrimEnd('\\');
-                            expr1 = Regex.Replace(expr1, premaskedOp, " _" + se.ToString() + "_ ", RegexOptions.IgnoreCase);
+                            expr1 = Regex.Replace(expr1, @"\b" + op + @"\b", " _" + se.ToString() + "_ ", RegexOptions.IgnoreCase);
                         }
                         else
                         {
-                            throw new ArgumentException("Operatoren dürfen nicht aus Sonderzeichen und [a-z0-9_ ] gemischt werden.");
+                            if (Regex.Matches(op, "[a-z0-9_ ]+", RegexOptions.IgnoreCase).Count == 0)
+                            {
+                                string premaskedOp = Regex.Replace(op, "", "\\").TrimEnd('\\');
+                                expr1 = Regex.Replace(expr1, premaskedOp, " _" + se.ToString() + "_ ", RegexOptions.IgnoreCase);
+                            }
+                            else
+                            {
+                                throw new ArgumentException("Operatoren dürfen nicht aus Sonderzeichen und [a-z0-9_ ] gemischt werden.");
+                            }
                         }
                     }
                 }
@@ -416,7 +438,7 @@ namespace NetEti.ExpressionParser
                     {
                         se = SyntaxElement.NONE;
                     }
-                    if (this.Operators.Keys.Contains(tokenName))
+                    if (this.Operators?.Keys.Contains(tokenName) == true)
                     {
                         if (this.Operators[tokenName][0] == SyntaxElement.GROUP || this.Operators[tokenName][0] == SyntaxElement.UNGROUP)
                         {
@@ -444,8 +466,12 @@ namespace NetEti.ExpressionParser
         // '<=' vor den Token '<' und '=' gesucht und maskiert werden,
         // damit es nur als '<=' interpretiert wird und nicht zusätzlich
         // auch noch als '<' und/oder '='.
-        private KeyValuePair<string, List<string>>[] preorderToken()
+        private KeyValuePair<string, List<string>>[]? preorderToken()
         {
+            if (this.Token == null)
+            {
+                return null;
+            }
             KeyValuePair<string, List<string>>[] preorderedToken = this.Token.ToArray();
             bool swapped = false;
             do

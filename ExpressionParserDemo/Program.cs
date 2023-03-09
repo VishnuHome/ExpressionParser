@@ -16,7 +16,8 @@ namespace NetEti.ExpressionParserDemo
         static void Main(string[] args)
         {
 
-            /*
+            
+            
             Console.WriteLine("-----------------------------------------------------------------------------");
             Console.WriteLine("--- BOOLEAN                                                               ---");
             Console.WriteLine("-----------------------------------------------------------------------------");
@@ -113,17 +114,18 @@ namespace NetEti.ExpressionParserDemo
 
             ParseAndShowARITHMETICAL(@"a * b + c / d");
             ParseAndShowARITHMETICAL(@"a / b / c / d");
-            */
+            
 
             Console.WriteLine("-----------------------------------------------------------------------------");
             Console.WriteLine("--- TRESHOLD                                                              ---");
             Console.WriteLine("-----------------------------------------------------------------------------");
 
-            string expression2 = @"a TR50 b TR50 c tr50 d tr50 e | x";
-            List<string> operands2 = tresholdParser.GetOperands(expression2);
-            Console.WriteLine(expression2);
-            Console.WriteLine("Operanden: " + String.Join(", ", operands2));
-            ParseAndShowTRESHOLD(expression2);
+            string expression3 = @"a TR50 b TR50 c tr50 d tr50 e | x";
+            List<string>? operands3 = tresholdParser.GetOperands(expression3);
+            Console.WriteLine(expression3);
+            Console.WriteLine("Operanden: " + String.Join(", ", operands3));
+
+            ParseAndShowTRESHOLD(expression3);
 
             Console.ReadLine();
 
