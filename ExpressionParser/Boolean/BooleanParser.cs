@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-
-namespace NetEti.ExpressionParser
+﻿namespace NetEti.ExpressionParser
 {
-  /// <summary>
-  /// Ein Parser für boolesche Ausdrücke.
-  /// Erstellt aus einem Textausdruck einen äquivalenten Baum.
-  /// </summary>
-  public class BooleanParser : ExpressionParser
+    /// <summary>
+    /// Ein Parser für boolesche Ausdrücke.
+    /// Erstellt aus einem Textausdruck einen äquivalenten Baum.
+    /// </summary>
+    public class BooleanParser : ExpressionParser
   {
     /// <summary>
     /// Standard Konstruktor.

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace NetEti.ExpressionParser
+﻿namespace NetEti.ExpressionParser
 {
     /// <summary>
     /// Ein Parser für arithmetische Ausdrücke (experimentell).

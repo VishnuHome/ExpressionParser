@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace NetEti.ExpressionParser
+﻿namespace NetEti.ExpressionParser
 {
     /// <summary>
     /// Ein Parser für erweiterte boolesche Ausdrücke.

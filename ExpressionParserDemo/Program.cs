@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NetEti.ExpressionParser;
+﻿using NetEti.ExpressionParser;
 
 
 namespace NetEti.ExpressionParserDemo
